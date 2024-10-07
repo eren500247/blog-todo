@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CreateToDoForm from "./CreateToDoForm";
 import { useData } from "../services/DataProvider";
 import { doc, updateDoc } from "firebase/firestore";
@@ -19,21 +19,31 @@ const TodoPage = () => {
     await updateDoc(userDb, newField);
   };
 
-  // const handleUp = (index)=>{
-  //   if(index < allTodos.length + 1){
-  //     const rangeList = allTodos
-  //     [rangeList[index],rangeList[index-1]] = [rangeList[index-1],rangeList[index]]
+  const handleUp = (index) => {
+    if (index > 0) {
+      const rangeList = [...finalData];
+      const temp = rangeList[index];
+      rangeList[index] = rangeList[index - 1];
+      rangeList[index - 1] = temp;
+      setFinalData(rangeList);
+    }
+  };
+  const handleDown = (index) => {
+    if (index < finalData.length + 1) {
+      const rangeList = [...finalData];
+      const temp = rangeList[index];
+      rangeList[index] = rangeList[index + 1];
+      rangeList[index + 1] = temp;
+      setFinalData(rangeList);
+    }
+  };
 
-  //     console.log("RangeList",index)
-  //   }
 
-  // }
-
-  // useEffect(() => {
-  //   if (allTodos) {
-  //     set(allTodos);
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (allTodos) {
+      setFinalData(allTodos);
+    }
+  }, [allTodos]);
 
   return (
     <div>
@@ -51,8 +61,8 @@ const TodoPage = () => {
           Completed Task : {completedTask.length}
         </h1>
         <ul>
-          {allTodos.length > 0 ? (
-            allTodos.map((data, index) => (
+          {finalData.length > 0 ? (
+            finalData.map((data, index) => (
               <li key={data.id}>
                 <div className="flex justify-between px-3 py-4 bg-slate-500 text-white rounded mx-auto max-w-xl shadow-lg mb-3">
                   <h1 className="text-md font-bold">{data.content}</h1>
@@ -65,7 +75,7 @@ const TodoPage = () => {
                       onChange={() => handleChange(data.id, data.checkStatus)}
                       className="form-checkbox h-5 w-5 text-blue-600 rounded-md transition duration-200 ease-in-out shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     />
-                    <button>Down</button>
+                    <button onClick={()=>handleDown(index)}>Down</button>
                     <button onClick={() => handleUp(index)}>Up</button>
                   </div>
                 </div>
